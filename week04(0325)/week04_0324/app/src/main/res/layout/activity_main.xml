@@ -30,27 +30,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#7FFFD4"
-        android:layout_margin="20px"
+        android:layout_margin="50px"
         android:text="버튼" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="100px"
-        android:layout_margin="20px"
+        android:layout_margin="50px"
         android:text="여긴 텍스트뷰입니다." />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#0000ff"
-        android:layout_margin="20px" />
+        android:hint="여긴 에디트텍스트입니다."
+        android:textColorHint="@color/white"
+        android:textColor="@color/white"
+        android:layout_margin="50px" />
 
     <android.widget.Button
         android:layout_width="200px"
-        android:layout_height="500px"
+        android:layout_height="match_parent"
         android:text="버튼2"
-        android:background="#008080"
-        android:layout_margin="20px" />
+        android:background="#9C9C9C"
+        android:layout_margin="50px" />
 
 
 </LinearLayout>
