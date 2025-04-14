@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     String num1, num2;
     Float result;
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

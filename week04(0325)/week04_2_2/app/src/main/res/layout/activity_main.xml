@@ -1,80 +1,87 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="20dp"
+    tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView1"
-        android:text="선택을 시작하시겠습니까?"
         android:padding="10dp"
+        android:text="선택을 시작하시겠습니까?"
         android:textSize="20dp" />
 
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/checkbox"
-        android:padding="10dp"
-        android:text="시작함" />
-
-    <TextView
+    <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/testView2"
-        android:visibility="invisible"
-        android:text="좋아하는 동물은?"
+        android:id="@+id/str"
         android:padding="10dp"
+        android:text="시작함"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <TextView
+        android:id="@+id/testView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="좋아하는 안드로이드 버전은?"
+        android:visibility="invisible"
         android:textSize="20dp" />
 
     <RadioGroup
+        android:id="@+id/radioGroup1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/radioGroup1"
-        android:padding="10dp"
-        android:visibility="invisible" >
+        android:visibility="invisible"
+        android:padding="10dp">
 
         <RadioButton
+            android:id="@+id/rdoS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rdoCat"
             android:padding="10dp"
-            android:text="고양이" />
+            android:text="S(12.0)" />
 
         <RadioButton
+            android:id="@+id/rdoT"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rdoBird"
             android:padding="10dp"
-            android:text="뱁새" />
+            android:text="T(13.0)" />
 
         <RadioButton
+            android:id="@+id/rdoU"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/rdoGuri"
             android:padding="10dp"
-            android:text="너구리" />
-
+            android:text="U(14.0)" />
     </RadioGroup>
+
+    <ImageView
+        android:id="@+id/imgAnimal"
+        android:layout_width="wrap_content"
+        android:layout_height="300dp"
+        android:visibility="invisible"
+        android:padding="10dp" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/btn1"
+        android:id="@+id/btnFinish"
+        android:padding="10dp"
         android:visibility="invisible"
-        android:padding="10dp"
-        android:text="선택 완료" />
+        android:text="종료" />
 
-    <ImageView
+    <Button
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:id="@+id/imgAnimal"
-        android:padding="10dp"
-        android:visibility="invisible" />
+        android:layout_height="wrap_content"
+        android:id="@+id/btnReset"
+        android:text="처음으로"
+        android:visibility="invisible"
+        android:padding="10dp" />
 
 </LinearLayout>
