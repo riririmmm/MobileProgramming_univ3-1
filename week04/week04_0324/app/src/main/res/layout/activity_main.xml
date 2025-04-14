@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="30px"
+    tools:context=".MainActivity">
+
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="성별 선택" />-->
+
+<!--    <RadioButton-->
+<!--        android:id="@+id/female"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="여성" />-->
+
+<!--    <RadioButton-->
+<!--        android:id="@+id/male"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="남성" />-->
+
+    <android.widget.Button
+        android:id="@+id/btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#7FFFD4"
+        android:layout_margin="20px"
+        android:text="버튼" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="100px"
+        android:layout_margin="20px"
+        android:text="여긴 텍스트뷰입니다." />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0000ff"
+        android:layout_margin="20px" />
+
+    <android.widget.Button
+        android:layout_width="200px"
+        android:layout_height="500px"
+        android:text="버튼2"
+        android:background="#008080"
+        android:layout_margin="20px" />
+
+
+</LinearLayout>
