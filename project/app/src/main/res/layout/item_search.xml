@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp" >
+
+    <!-- 이미지 -->
+    <ImageView
+        android:id="@+id/image_result"
+        android:layout_width="70dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background" />
+
+    <!-- 텍스트 묶음 -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="검색 결과 제목"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="3dp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/text_detail1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상세 내용"
+            android:textSize="15sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#4C4C4C" />
+
+        <TextView
+            android:id="@+id/text_detail2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="상세 내용2"
+            android:textSize="15sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#4C4C4C" />
+
+    </LinearLayout>
+
+</LinearLayout>

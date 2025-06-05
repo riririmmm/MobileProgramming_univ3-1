@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">project</string>
+
+    <string-array name="category_array">
+        <item>도서</item>
+        <item>영화</item>
+        <item>전시/공연</item>
+    </string-array>
+</resources>
+
