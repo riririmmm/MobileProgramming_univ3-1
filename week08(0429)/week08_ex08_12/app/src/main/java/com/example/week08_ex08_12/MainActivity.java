@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
         btnRead = (Button) findViewById(R.id.btnRead);
         editSD = (EditText) findViewById(R.id.editSD);
 
+        // 앱에서 외부 저장소(예: SD카드)에 파일을 쓰기 위해 사용자에게 권한을 요청
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MODE_PRIVATE);
 
