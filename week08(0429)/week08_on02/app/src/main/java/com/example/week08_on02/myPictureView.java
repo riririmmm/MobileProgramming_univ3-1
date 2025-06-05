@@ -23,8 +23,8 @@ public class myPictureView extends View {
 
         if (imagePath != null) {
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-            canvas.drawBitmap(bitmap, 0, 0, null);
-            bitmap.recycle();
+            canvas.drawBitmap(bitmap, 0, 0, null);  // 뒤에 3개는 위치 관련
+            bitmap.recycle();   // 새로고침
         }
     }
 }
