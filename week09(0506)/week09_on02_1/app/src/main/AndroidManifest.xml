@@ -6,11 +6,12 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="@drawable/icon"
+        android:label="week09_on02_1: (응용) 미니 포토샵"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Week09_on02_1"
+        android:hardwareAccelerated="false"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
