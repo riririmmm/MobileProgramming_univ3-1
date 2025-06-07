@@ -13,4 +13,5 @@ public class Review {
     public String comment;
     public String memo;
     public String createdDate;
+    public String readDate;
 }

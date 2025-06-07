@@ -3,6 +3,7 @@ package com.example.project;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Looper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.project.model.Content;
+import com.example.project.model.ReadDate;
 import com.example.project.model.Review;
 
 import java.text.SimpleDateFormat;
@@ -71,7 +73,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             AlertDialog dialog = builder.create();
             dialog.show();
 
-            // 1. 다이얼로그 뷰 연결
+            // 다이얼로그 뷰 바인딩
             ImageView imageView = dialogView.findViewById(R.id.dialog_image);
             TextView titleView = dialogView.findViewById(R.id.dialog_title);
             TextView descView = dialogView.findViewById(R.id.dialog_desc1);
@@ -79,10 +81,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             TextView endDateView = dialogView.findViewById(R.id.dialog_end_date);
             RatingBar ratingBar = dialogView.findViewById(R.id.dialog_rating);
             Button btnSaveMemo = dialogView.findViewById(R.id.btn_save_memo);
+            Button btnEdit = dialogView.findViewById(R.id.btn_edit);
+            Button btnDelete = dialogView.findViewById(R.id.btn_delete);
 
-            // 2. 콘텐츠 정보 세팅
+            // 콘텐츠 정보 표시
             titleView.setText(content.title);
-            descView.setText(content.place); // desc1 역할
+            descView.setText(content.place);
             startDateView.setText("시작일: " + (content.startDate != null ? content.startDate : "-"));
             endDateView.setText("종료일: " + (content.endDate != null ? content.endDate : "-"));
 
@@ -90,7 +94,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                     .load(content.imageUrl)
                     .into(imageView);
 
-            // 3. 종료일 있으면 RatingBar 표시
             if (content.endDate != null && !content.endDate.isEmpty()) {
                 ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(content.rating);
@@ -98,17 +101,40 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 ratingBar.setVisibility(View.GONE);
             }
 
-            // 4. 시작일/종료일 TextView 클릭 시 DatePicker
-            startDateView.setOnClickListener(v2 -> showDatePickerDialog(holder, startDateView, true, content));
-            endDateView.setOnClickListener(v2 -> {
-                showEndDateRatingDialog(holder.itemView.getContext(), content, () -> {
-                    endDateView.setText("종료일: " + content.endDate);
-                    ratingBar.setVisibility(View.VISIBLE);
-                    ratingBar.setRating(content.rating);
+            // 수정 버튼
+            btnEdit.setOnClickListener(v2 -> {
+                showEditContentDialog(holder.itemView.getContext(), content, () -> {
+                    notifyItemChanged(holder.getAdapterPosition());
+                    dialog.dismiss();
                 });
             });
 
-            // 5. 메모 추가 버튼 클릭 시 메모 다이얼로그 띄우기
+            // 삭제 버튼
+            btnDelete.setOnClickListener(v2 -> {
+                new AlertDialog.Builder(holder.itemView.getContext())
+                        .setTitle("콘텐츠 삭제")
+                        .setMessage("정말 삭제하시겠습니까?")
+                        .setPositiveButton("삭제", (d, i) -> {
+                            new Thread(() -> {
+                                MainActivity.db.appDao().deleteContent(content);
+                                MainActivity.db.appDao().deleteReadDatesByContentId(content.id);
+                                MainActivity.db.appDao().deleteReviewsByContentId(content.id);
+                                itemList.remove(holder.getAdapterPosition());
+
+                                new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                                    notifyItemRemoved(holder.getAdapterPosition());
+                                    Toast.makeText(holder.itemView.getContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                });
+                            }).start();
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
+            });
+
+            // 시작일/종료일은 읽기 전용 → DatePicker 없음
+
+            // 메모 추가 버튼
             btnSaveMemo.setOnClickListener(v2 -> {
                 showMemoInputDialog(holder.itemView.getContext(), content.id, () -> {
                     Toast.makeText(holder.itemView.getContext(), "메모가 저장되었습니다", Toast.LENGTH_SHORT).show();
@@ -116,10 +142,129 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 });
             });
 
-            // 6. 작성된 메모들 불러와서 추가 표시 (아래에서 추가 구현)
+            // 메모 목록 불러오기
             loadAndAttachMemoList(holder.itemView.getContext(), dialogView, content.id);
         });
+    }
 
+    // 다이얼로그에서 시작일/종료일/별점/읽은 날짜 수정할 수 있는 함수
+    private void showEditContentDialog(Context context, Content content, Runnable onUpdated) {
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_content, null);
+        AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView).create();
+
+        TextView titleView = dialogView.findViewById(R.id.text_title);
+        TextView startDateView = dialogView.findViewById(R.id.text_start_date);
+        TextView endDateView = dialogView.findViewById(R.id.text_end_date);
+        RatingBar ratingBar = dialogView.findViewById(R.id.rating_bar);
+        LinearLayout readDatesContainer = dialogView.findViewById(R.id.read_dates_container);
+        Button btnAddReadDate = dialogView.findViewById(R.id.btn_add_read_date);
+        Button btnSave = dialogView.findViewById(R.id.btn_save);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
+        titleView.setText(content.title);
+        startDateView.setText(content.startDate != null ? content.startDate : "시작일 선택");
+        endDateView.setText(content.endDate != null ? content.endDate : "종료일 선택");
+        ratingBar.setRating(content.rating);
+
+        // 종료일이 설정되어 있을 때만 별점 보이게
+        if (content.endDate != null && !content.endDate.isEmpty()) {
+            ratingBar.setVisibility(View.VISIBLE);
+        } else {
+            ratingBar.setVisibility(View.GONE);
+        }
+
+        // 날짜 선택
+        startDateView.setOnClickListener(v -> showDatePicker(context, startDateView));
+        endDateView.setOnClickListener(v -> showDatePicker(context, endDateView));
+
+        // 읽은 날짜 불러오기
+        new Thread(() -> {
+            List<ReadDate> readDates = MainActivity.db.appDao().getReadDatesByContentId(content.id);
+
+            // 시작일과 종료일도 읽은 날짜에 포함되도록 추가
+            if (content.startDate != null && !content.startDate.isEmpty()) {
+                ReadDate start = new ReadDate();
+                start.contentId = content.id;
+                start.readDate = content.startDate;
+                readDates.add(0, start); // 앞에 추가
+            }
+            if (content.endDate != null && !content.endDate.isEmpty()
+                    && !content.endDate.equals(content.startDate)) {
+                ReadDate end = new ReadDate();
+                end.contentId = content.id;
+                end.readDate = content.endDate;
+                readDates.add(1, end); // 뒤에 추가
+            }
+
+            new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                for (ReadDate rd : readDates) {
+                    TextView tv = new TextView(context);
+                    tv.setText(rd.readDate);
+                    tv.setPadding(0, 8, 0, 8);
+                    readDatesContainer.addView(tv);
+                }
+            });
+        }).start();
+
+        // 읽은 날짜 추가
+        btnAddReadDate.setOnClickListener(v -> {
+            Calendar cal = Calendar.getInstance();
+            new DatePickerDialog(context, (view, year, month, day) -> {
+                String dateStr = String.format("%04d-%02d-%02d", year, month + 1, day);
+                boolean exists = false;
+                for (int i = 0; i < readDatesContainer.getChildCount(); i++) {
+                    String existing = ((TextView) readDatesContainer.getChildAt(i)).getText().toString();
+                    if (existing.equals(dateStr)) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    TextView tv = new TextView(context);
+                    tv.setText(dateStr);
+                    tv.setPadding(0, 8, 0, 8);
+                    readDatesContainer.addView(tv);
+                }
+            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+        });
+
+        btnSave.setOnClickListener(v -> {
+            content.startDate = startDateView.getText().toString();
+            content.endDate = endDateView.getText().toString();
+            content.rating = ratingBar.getRating();
+
+            new Thread(() -> {
+                MainActivity.db.appDao().updateContent(content);
+
+                // 기존 읽은 날짜 삭제 후 새로 삽입
+                MainActivity.db.appDao().deleteReadDatesByContentId(content.id);
+                for (int i = 0; i < readDatesContainer.getChildCount(); i++) {
+                    String date = ((TextView) readDatesContainer.getChildAt(i)).getText().toString();
+                    ReadDate rd = new ReadDate();
+                    rd.contentId = content.id;
+                    rd.readDate = date;
+                    MainActivity.db.appDao().insertReadDate(rd);
+                }
+
+                new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "수정되었습니다", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    if (onUpdated != null) onUpdated.run();
+                });
+            }).start();
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void showDatePicker(Context context, TextView targetView) {
+        Calendar cal = Calendar.getInstance();
+        new DatePickerDialog(context, (view, year, month, day) -> {
+            String selected = String.format("%04d-%02d-%02d", year, month + 1, day);
+            targetView.setText(selected);
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     @Override
@@ -156,27 +301,32 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             String memoText = editMemo.getText().toString().trim();
             if (!memoText.isEmpty()) {
                 new Thread(() -> {
-                    SimpleDateFormat sdf;
-                    sdf = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
                     String todayStr = sdf.format(new Date());
                     Review review = new Review();
                     review.contentId = contentId;
                     review.memo = memoText;
                     review.rating = 0f;
                     review.createdDate = todayStr;
+
                     MainActivity.db.appDao().insertReview(review);
 
+                    new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                        dialog.dismiss();
+                        if (onSaved != null) onSaved.run();
+                    });
+
                 }).start();
+            } else {
+                Toast.makeText(context, "메모를 입력하세요", Toast.LENGTH_SHORT).show();
             }
-            dialog.dismiss();
         });
 
         dialog.show();
     }
 
     private void loadAndAttachMemoList(Context context, View dialogView, int contentId) {
-        ViewGroup memoContainer = new LinearLayout(context);
-        ((LinearLayout) dialogView.findViewById(R.id.dialog_rating).getParent()).addView(memoContainer);  // 버튼 밑에 추가
+        ViewGroup memoContainer = dialogView.findViewById(R.id.memo_container);
 
         new Thread(() -> {
             List<Review> memoList = MainActivity.db.appDao().getReviewsByContentId(contentId);
@@ -199,9 +349,48 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                         Button btnSave = editView.findViewById(R.id.btn_save);
                         editMemo.setText(review.memo);
 
+                        btnSave.setVisibility(View.GONE);
+
+                        LinearLayout buttonRow = new LinearLayout(context);
+                        buttonRow.setOrientation(LinearLayout.HORIZONTAL);
+                        buttonRow.setLayoutParams(new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        buttonRow.setGravity(Gravity.END);
+
+                        Button btnDelete = new Button(context);
+                        btnDelete.setText("삭제");
+                        btnDelete.setTextSize(12f);
+
+                        Button btnSaveNew = new Button(context);
+                        btnSaveNew.setText("수정");
+                        btnSaveNew.setTextSize(12f);
+
+                        buttonRow.addView(btnDelete);
+                        buttonRow.addView(btnSaveNew);
+
+                        ((LinearLayout) editView).addView(buttonRow);
+
                         AlertDialog editDialog = new AlertDialog.Builder(context).setView(editView).create();
 
-                        btnSave.setOnClickListener(btn -> {
+                        btnDelete.setOnClickListener(v2 -> {
+                            new AlertDialog.Builder(context)
+                                    .setTitle("메모 삭제")
+                                    .setMessage("정말 삭제하시겠습니까?")
+                                    .setPositiveButton("삭제", (dialogInterface, i) -> {
+                                        new Thread(() -> {
+                                            MainActivity.db.appDao().deleteReview(review);
+                                            new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                                                Toast.makeText(context, "메모가 삭제되었습니다", Toast.LENGTH_SHORT).show();
+                                                editDialog.dismiss();
+                                                loadAndAttachMemoList(context, dialogView, contentId); // 새로고침
+                                            });
+                                        }).start();
+                                    })
+                                    .setNegativeButton("취소", null)
+                                    .show();
+                        });
+
+                        btnSaveNew.setOnClickListener(btn -> {
                             String updated = editMemo.getText().toString().trim();
                             if (!updated.isEmpty()) {
                                 new Thread(() -> {

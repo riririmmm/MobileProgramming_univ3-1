@@ -62,16 +62,31 @@ public class CalendarFragment extends Fragment {
     // DB에서 해당 날짜의 콘텐츠만 가져오기
     private void updateListByDate(String date) {
         new Thread(() -> {
-            List<Content> filtered = MainActivity.db.appDao().getContentsByDate(date);
+            List<Content> result = new ArrayList<>();
 
-            Log.d("DEBUG", "조회된 콘텐츠 개수: " + filtered.size());
-            for (Content c : filtered) {
-                Log.d("DEBUG", "→ title=" + c.title + ", watchedDate=" + c.watchedDate);
+            // watchedDate 기반 콘텐츠
+            List<Content> direct = MainActivity.db.appDao().getContentsByDate(date);
+            result.addAll(direct);
+
+            // readDate 기반 콘텐츠
+            List<Content> read = MainActivity.db.appDao().getContentsByReadDate(date);
+            for (Content c : read) {
+                if (!containsContent(result, c.id)) {
+                    result.add(c);
+                }
             }
 
             requireActivity().runOnUiThread(() -> {
-                adapter.updateList(filtered);
+                adapter.updateList(result);
             });
         }).start();
+    }
+
+    // 중복 방지용 헬퍼 메서드
+    private boolean containsContent(List<Content> list, int contentId) {
+        for (Content c : list) {
+            if (c.id == contentId) return true;
+        }
+        return false;
     }
 }

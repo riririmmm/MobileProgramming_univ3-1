@@ -166,8 +166,17 @@ public class SearchFragment extends Fragment {
                         if (imageUrl != null && imageUrl.startsWith("http://")) {
                             imageUrl = imageUrl.replaceFirst("http://", "https://");
                         }
+
+                        String rawTitle = result.title
+                                .replaceAll("!HS|!HE", "")
+                                .trim();
+                        String decoded = Html.fromHtml(rawTitle, Html.FROM_HTML_MODE_LEGACY).toString();
+                        String cleanTitle = decoded
+                                .replaceAll("\\u00A0", " ")
+                                .replaceAll("\\s+", " ");
+
                         searchResults.add(new SearchItem(
-                                result.title.replaceAll("!HS|!HE", "").trim(),
+                                cleanTitle,
                                 imageUrl,
                                 "러닝타임: " + result.runtime + "분",
                                 result.getPlotText(),

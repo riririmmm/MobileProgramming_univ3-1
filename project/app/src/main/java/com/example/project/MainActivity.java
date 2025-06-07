@@ -25,18 +25,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Room DB 초기화
-        db = Room.databaseBuilder(
-                getApplicationContext(),
-                AppDatabase.class,
-                "culture-db"
-        ).allowMainThreadQueries().build(); // 테스트용으로 메인 스레드 허용
-
-//        Content c = new Content();
-//        c.title = "웃는 남자";
-//        c.category = "뮤지컬";
-//        c.watchedDate = "2025-06-04";
-//        MainActivity.db.appDao().insertContent(c);
+        db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "app-db")
+                .fallbackToDestructiveMigration()  // 버전 바뀌면 기존 DB 삭제하고 새로 생성
+                .build();
 
         // 하단 네비게이션 뷰 연결
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

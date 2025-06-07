@@ -2,6 +2,11 @@ package com.example.project.model;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import com.example.project.util.StringListConverter;
+
+import java.util.List;
 
 @Entity
 public class Content {
@@ -17,4 +22,8 @@ public class Content {
     public int pageCount;
     public String watchedDate;
     public float rating;
+
+    @TypeConverters(StringListConverter.class)
+    public List<String> readDates;
+
 }

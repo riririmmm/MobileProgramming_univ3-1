@@ -1,11 +1,13 @@
 package com.example.project.db;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
 import com.example.project.model.Content;
 import com.example.project.model.ContentWithReview;
+import com.example.project.model.ReadDate;
 import com.example.project.model.Review;
 
 import java.util.List;
@@ -17,6 +19,12 @@ public interface AppDao {
 
     @Insert
     void insertReview(Review review);
+
+    @Delete
+    void deleteContent(Content content);
+
+    @Delete
+    void deleteReview(Review review);
 
     @Query("SELECT * FROM Content")
     List<Content> getAllContents();
@@ -34,10 +42,28 @@ public interface AppDao {
     @Query("SELECT * FROM Review WHERE contentId = :contentId")
     List<Review> getReviewsByContentId(int contentId);
 
+    @Query("DELETE FROM ReadDate WHERE contentId = :contentId")
+    void deleteReadDatesByContentId(int contentId);
+
+    @Query("DELETE FROM Review WHERE contentId = :contentId")
+    void deleteReviewsByContentId(int contentId);
+
+    @Query("SELECT Content.* FROM Content JOIN ReadDate ON Content.id = ReadDate.contentId WHERE ReadDate.readDate = :date")
+    List<Content> getContentsByReadDate(String date);
+
     @androidx.room.Update
     void updateReview(Review review);
 
     @androidx.room.Update
     void updateContent(Content content);
+
+    @Insert
+    void insertReadDate(ReadDate readDate);
+
+    @Query("SELECT * FROM ReadDate WHERE contentId = :contentId")
+    List<ReadDate> getReadDatesByContentId(int contentId);
+
+    @Delete
+    void deleteReadDate(ReadDate readDate);
 
 }
