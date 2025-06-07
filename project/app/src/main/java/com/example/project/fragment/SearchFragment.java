@@ -167,7 +167,7 @@ public class SearchFragment extends Fragment {
                             imageUrl = imageUrl.replaceFirst("http://", "https://");
                         }
                         searchResults.add(new SearchItem(
-                                result.title.replaceAll("!HS|!HE", ""),
+                                result.title.replaceAll("!HS|!HE", "").trim(),
                                 imageUrl,
                                 "러닝타임: " + result.runtime + "분",
                                 result.getPlotText(),

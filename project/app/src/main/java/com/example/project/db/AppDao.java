@@ -31,4 +31,13 @@ public interface AppDao {
             "FROM Content JOIN Review ON Content.id = Review.contentId")
     List<ContentWithReview> getReviewedContent();
 
+    @Query("SELECT * FROM Review WHERE contentId = :contentId")
+    List<Review> getReviewsByContentId(int contentId);
+
+    @androidx.room.Update
+    void updateReview(Review review);
+
+    @androidx.room.Update
+    void updateContent(Content content);
+
 }

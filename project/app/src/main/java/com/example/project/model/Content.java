@@ -16,4 +16,5 @@ public class Content {
     public String place;
     public int pageCount;
     public String watchedDate;
+    public float rating;
 }

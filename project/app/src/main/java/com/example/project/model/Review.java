@@ -12,4 +12,5 @@ public class Review {
     public float rating;
     public String comment;
     public String memo;
+    public String createdDate;
 }
