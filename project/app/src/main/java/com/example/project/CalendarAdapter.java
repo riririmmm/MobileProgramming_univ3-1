@@ -26,11 +26,11 @@ import com.example.project.model.ReadDate;
 import com.example.project.model.Review;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Handler;
 
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHolder> {
 
@@ -94,12 +94,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                     .load(content.imageUrl)
                     .into(imageView);
 
-            if (content.endDate != null && !content.endDate.isEmpty()) {
-                ratingBar.setVisibility(View.VISIBLE);
-                ratingBar.setRating(content.rating);
-            } else {
-                ratingBar.setVisibility(View.GONE);
-            }
+            ratingBar.setRating(content.rating);
 
             // 수정 버튼
             btnEdit.setOnClickListener(v2 -> {
@@ -166,12 +161,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         endDateView.setText(content.endDate != null ? content.endDate : "종료일 선택");
         ratingBar.setRating(content.rating);
 
-        // 종료일이 설정되어 있을 때만 별점 보이게
-        if (content.endDate != null && !content.endDate.isEmpty()) {
-            ratingBar.setVisibility(View.VISIBLE);
-        } else {
-            ratingBar.setVisibility(View.GONE);
-        }
+        ratingBar.setVisibility(View.VISIBLE);
+        ratingBar.setRating(content.rating);
 
         // 날짜 선택
         startDateView.setOnClickListener(v -> showDatePicker(context, startDateView));
@@ -180,23 +171,31 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         // 읽은 날짜 불러오기
         new Thread(() -> {
             List<ReadDate> readDates = MainActivity.db.appDao().getReadDatesByContentId(content.id);
+            List<String> existingDates = new ArrayList<>();
+            for (ReadDate rd : readDates) {
+                existingDates.add(rd.readDate);
+            }
 
-            // 시작일과 종료일도 읽은 날짜에 포함되도록 추가
-            if (content.startDate != null && !content.startDate.isEmpty()) {
+            // 시작일/종료일이 이미 들어가 있지 않으면 추가
+            if (content.startDate != null && !content.startDate.isEmpty()
+                    && !existingDates.contains(content.startDate)) {
                 ReadDate start = new ReadDate();
                 start.contentId = content.id;
                 start.readDate = content.startDate;
                 readDates.add(0, start); // 앞에 추가
             }
+
             if (content.endDate != null && !content.endDate.isEmpty()
-                    && !content.endDate.equals(content.startDate)) {
+                    && !content.endDate.equals(content.startDate)
+                    && !existingDates.contains(content.endDate)) {
                 ReadDate end = new ReadDate();
                 end.contentId = content.id;
                 end.readDate = content.endDate;
-                readDates.add(1, end); // 뒤에 추가
+                readDates.add(end);  // 뒤에 추가
             }
 
             new android.os.Handler(Looper.getMainLooper()).post(() -> {
+                readDatesContainer.removeAllViews();
                 for (ReadDate rd : readDates) {
                     TextView tv = new TextView(context);
                     tv.setText(rd.readDate);
@@ -229,8 +228,12 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         });
 
         btnSave.setOnClickListener(v -> {
-            content.startDate = startDateView.getText().toString();
-            content.endDate = endDateView.getText().toString();
+            String startDateStr = startDateView.getText().toString();
+            String endDateStr = endDateView.getText().toString();
+
+            // 시작일/종료일 선택 안내 문구는 null 처리
+            content.startDate = startDateStr.equals("시작일 선택") ? null : startDateStr;
+            content.endDate = endDateStr.equals("종료일 선택") ? null : endDateStr;
             content.rating = ratingBar.getRating();
 
             new Thread(() -> {
@@ -240,6 +243,10 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
                 MainActivity.db.appDao().deleteReadDatesByContentId(content.id);
                 for (int i = 0; i < readDatesContainer.getChildCount(); i++) {
                     String date = ((TextView) readDatesContainer.getChildAt(i)).getText().toString();
+
+                    // 날짜 포맷이 yyyy-MM-dd인 경우만 저장
+                    if (!date.matches("\\d{4}-\\d{2}-\\d{2}")) continue;
+
                     ReadDate rd = new ReadDate();
                     rd.contentId = content.id;
                     rd.readDate = date;

@@ -110,7 +110,17 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
                                 MainActivity activity = (MainActivity) context;
                                 AppDatabase db = MainActivity.db;
 
+                                // 콘텐츠 저장
                                 db.appDao().insertContent(content);
+
+                                // 방금 저장한 content.id 다시 불러오기 (title, date 기준으로 조회)
+                                Content inserted = db.appDao().findContentByTitleAndDate(content.title, content.watchedDate);
+                                if (inserted != null) {
+                                    com.example.project.model.ReadDate rd = new com.example.project.model.ReadDate();
+                                    rd.contentId = inserted.id;
+                                    rd.readDate = inserted.watchedDate;
+                                    db.appDao().insertReadDate(rd);
+                                }
 
                                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
                                         Toast.makeText(context, "캘린더에 저장했습니다.", Toast.LENGTH_SHORT).show()

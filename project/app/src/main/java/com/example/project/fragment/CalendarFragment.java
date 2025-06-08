@@ -76,6 +76,14 @@ public class CalendarFragment extends Fragment {
                 }
             }
 
+            // startDate / endDate 기반 콘텐츠
+            List<Content> allContents = MainActivity.db.appDao().getAllContents();
+            for (Content c : allContents) {
+                if ((date.equals(c.startDate) || date.equals(c.endDate)) && !containsContent(result, c.id)) {
+                    result.add(c);
+                }
+            }
+
             requireActivity().runOnUiThread(() -> {
                 adapter.updateList(result);
             });
