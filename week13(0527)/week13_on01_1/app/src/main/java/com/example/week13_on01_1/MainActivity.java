@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> mp3List;     // MP3 파일 이름 목록 저장용 리스트
     String selectedMP3;            // 현재 선택된 MP3 파일 이름
 
+    boolean isPaused = false;       // 일시정지 상태 플래그
+    Button btnPause;                // 일시정지 버튼
+
     String mp3Path = Environment.getExternalStorageDirectory().getPath() + "/Ringtones/"; // MP3 파일들이 저장된 경로
     MediaPlayer mPlayer;          // 실제 음악 재생을 담당할 MediaPlayer 객체
 
@@ -84,14 +87,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    mPlayer = new MediaPlayer(); // MediaPlayer 객체 생성
-                    mPlayer.setDataSource(mp3Path + selectedMP3); // 파일 경로 설정
-                    mPlayer.prepare(); // 준비 (버퍼링 등)
-                    mPlayer.start(); // 재생 시작
-                    btnPlay.setClickable(false); // ▶ 비활성화
-                    btnStop.setClickable(true);  // ■ 활성화
-                    tvMP3.setText("실행 중인 음악: " + selectedMP3); // 제목 표시
-                    pbMP3.setVisibility(View.VISIBLE); // 프로그레스바 표시
+                    mPlayer = new MediaPlayer();    // MediaPlayer 객체 생성
+                    mPlayer.setDataSource(mp3Path + selectedMP3);   // 파일 경로 설정
+                    mPlayer.prepare();  // 준비 (버퍼링 등)
+                    mPlayer.start();    // 재생 시작
+                    btnPlay.setClickable(false);    // 듣기 버튼 비활성화
+                    btnStop.setClickable(true);     // 중지 버튼 활성화
+                    btnPause.setClickable(true);    // 일시정지 버튼 활성화
+                    tvMP3.setText("실행 중인 음악: " + selectedMP3);  // 제목 표시
+                    btnPause.setText("일시정지");
+                    pbMP3.setVisibility(View.VISIBLE);  // 프로그레스바 표시
                 } catch (IOException e) {
                     // 예외 발생 시 무시 (파일 못 찾는 경우 등)
                 }
@@ -102,15 +107,41 @@ public class MainActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPlayer.stop(); // 재생 중단
-                mPlayer.reset(); // MediaPlayer 상태 초기화
-                btnPlay.setClickable(true); // ▶ 다시 활성화
-                btnStop.setClickable(false); // ■ 비활성화
-                tvMP3.setText("실행 중인 음악: "); // 제목 초기화
-                pbMP3.setVisibility(View.INVISIBLE); // 프로그레스바 숨김
+                mPlayer.stop();     // 재생 중단
+                mPlayer.reset();    // MediaPlayer 상태 초기화
+                btnPlay.setClickable(true);     // 듣기 버튼 활성화
+                btnStop.setClickable(false);    // 중지 버튼 비활성화
+                btnPause.setClickable(false);   // 일시정지 버튼 비활성화
+                tvMP3.setText("실행 중인 음악: ");    // 제목 초기화
+                pbMP3.setVisibility(View.INVISIBLE);    // 프로그레스바 숨김
             }
         });
 
         btnStop.setClickable(false); // 처음에는 정지 버튼 비활성화
+
+        btnPause = (Button) findViewById(R.id.btnPause);
+        btnPause.setClickable(false);   // 처음에는 일시정지 버튼 비활성화
+
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mPlayer != null && mPlayer.isPlaying()) {
+                    mPlayer.pause();
+                    btnPlay.setClickable(true);
+                    btnStop.setClickable(false);
+                    pbMP3.setVisibility(View.INVISIBLE);
+                    btnPause.setText("다시 듣기");
+                    isPaused = true;
+                } else if (mPlayer != null && isPaused) {
+                    mPlayer.start();
+                    btnPlay.setClickable(false);
+                    btnStop.setClickable(true);
+                    pbMP3.setVisibility(View.VISIBLE);
+                    btnPause.setText("일시정지");
+                    isPaused = false;
+                }
+            }
+        });
+
     }
 }
