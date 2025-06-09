@@ -58,8 +58,11 @@ public class MainActivity extends AppCompatActivity {
                 null, null, null
         );
 
-        if (c == null)
-            return "통화기록 없음"; // 커서가 null이면 반환
+        // 커서가 null이거나 레코드가 없으면
+        if (c == null || c.getCount() == 0) {
+            if (c != null) c.close();
+            return "통화기록 없음";
+        }
 
         // 문자열을 누적할 버퍼 생성
         StringBuffer callBuff = new StringBuffer();
@@ -74,9 +77,7 @@ public class MainActivity extends AppCompatActivity {
             String date_str = datePattern.format(new Date(callDate));
             callBuff.append(date_str + " : ");
 
-            // 2. 통화 유형 (수신 / 발신) 판별
-            int callType = c.getInt(1);
-            if (callType == CallLog.Calls.INCOMING_TYPE)
+            if (c.getInt(1) == CallLog.Calls.INCOMING_TYPE)
                 callBuff.append("수신 : ");
             else
                 callBuff.append("발신 : ");
