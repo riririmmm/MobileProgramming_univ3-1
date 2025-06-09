@@ -7,7 +7,7 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="week14_on01: (응용) 화면 종료돼도 계속되는 음악 서비스"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Week14_on01_1"
@@ -21,6 +21,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".MusicService"   android:exported="false" >
+            <intent-filter>
+                <action android:name="com.cookandroid.MusicService" />
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>
