@@ -11,6 +11,6 @@ public class ContentWithReview {
     public int pageCount;
     public String watchedDate;
 
-    public float rating;
+    public Float rating;
     public String memo;
 }

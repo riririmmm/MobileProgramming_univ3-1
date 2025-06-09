@@ -66,6 +66,10 @@ public interface AppDao {
     @Query("SELECT * FROM Content WHERE title = :title AND watchedDate = :date LIMIT 1")
     Content findContentByTitleAndDate(String title, String date);
 
+    @Query("SELECT Content.*, Review.rating, Review.memo " +
+            "FROM Content LEFT JOIN Review ON Content.id = Review.contentId")
+    List<ContentWithReview> getAllContentWithOptionalReview();
+
     @Delete
     void deleteReadDate(ReadDate readDate);
 
