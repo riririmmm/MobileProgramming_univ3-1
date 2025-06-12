@@ -116,6 +116,10 @@ public class SearchFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     List<BookDocument> docs = response.body().documents;
                     searchResults.clear();
+                    if (docs == null || docs.isEmpty()) {
+                        Toast.makeText(getContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     for (BookDocument doc : docs) {
                         String author;
 
@@ -157,9 +161,11 @@ public class SearchFragment extends Fragment {
         call.enqueue(new Callback<KmdbMovieResponse>() {
             @Override
             public void onResponse(Call<KmdbMovieResponse> call, Response<KmdbMovieResponse> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().Data.isEmpty()) {
-                    List<KmdbMovieResponse.MovieResult> results = response.body().Data.get(0).Result;
+                KmdbMovieResponse body = response.body();
+                if (response.isSuccessful() && body != null && body.Data != null && !body.Data.isEmpty()) {
+                    List<KmdbMovieResponse.MovieResult> results = body.Data.get(0).Result;
                     searchResults.clear();
+
                     for (KmdbMovieResponse.MovieResult result : results) {
                         String imageUrl = (result.posters != null && result.posters.contains("|"))
                                 ? result.posters.split("\\|")[0] : result.posters;
@@ -167,13 +173,9 @@ public class SearchFragment extends Fragment {
                             imageUrl = imageUrl.replaceFirst("http://", "https://");
                         }
 
-                        String rawTitle = result.title
-                                .replaceAll("!HS|!HE", "")
-                                .trim();
+                        String rawTitle = result.title.replaceAll("!HS|!HE", "").trim();
                         String decoded = Html.fromHtml(rawTitle, Html.FROM_HTML_MODE_LEGACY).toString();
-                        String cleanTitle = decoded
-                                .replaceAll("\\u00A0", " ")
-                                .replaceAll("\\s+", " ");
+                        String cleanTitle = decoded.replaceAll("\\u00A0", " ").replaceAll("\\s+", " ");
 
                         searchResults.add(new SearchItem(
                                 cleanTitle,
@@ -182,11 +184,11 @@ public class SearchFragment extends Fragment {
                                 result.getPlotText(),
                                 "장르: " + result.genre
                         ));
-                        System.out.println(result.getPlotText());
                     }
+
                     searchAdapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(getContext(), "영화 API 응답 없음", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -223,25 +225,33 @@ public class SearchFragment extends Fragment {
                         InputSource is = new InputSource(new StringReader(xml));
                         Document doc = builder.parse(is);
                         NodeList items = doc.getElementsByTagName("item");
+
                         searchResults.clear();
 
+                        if (items.getLength() == 0) {
+                            Toast.makeText(getContext(), "검색 결과가 없습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         for (int i = 0; i < items.getLength(); i++) {
-
                             Element element = (Element) items.item(i);
-
                             String seq = getTagValue("seq", element);
-                            fetchEventDetail(seq);
+                            fetchEventDetail(seq);  // 각 상세 정보는 별도로 추가됨
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
+                        Toast.makeText(getContext(), "문화행사 XML 파싱 오류", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(getContext(), "문화행사 API 응답 오류", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 t.printStackTrace();
+                Toast.makeText(getContext(), "문화행사 API 요청 실패: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

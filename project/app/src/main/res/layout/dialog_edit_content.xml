@@ -28,6 +28,7 @@
             android:text="시작일"
             android:textSize="14sp"
             android:textColor="#555555" />
+
         <TextView
             android:id="@+id/text_start_date"
             android:layout_width="match_parent"
@@ -46,6 +47,7 @@
             android:text="종료일"
             android:textSize="14sp"
             android:textColor="#555555" />
+
         <TextView
             android:id="@+id/text_end_date"
             android:layout_width="match_parent"
@@ -63,6 +65,7 @@
             android:layout_height="wrap_content"
             android:text="별점"
             android:layout_marginTop="12dp" />
+
         <RatingBar
             android:id="@+id/rating_bar"
             android:layout_width="wrap_content"
@@ -77,8 +80,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="읽은 날짜"
+            android:text="감상 날짜"
             android:layout_marginTop="12dp" />
+
         <LinearLayout
             android:id="@+id/read_dates_container"
             android:layout_width="match_parent"
