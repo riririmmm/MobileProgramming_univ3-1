@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "app-db")
-                .fallbackToDestructiveMigration()  // 버전 바뀌면 기존 DB 삭제하고 새로 생성
+                .fallbackToDestructiveMigration()
                 .build();
 
         // 하단 네비게이션 뷰 연결
@@ -37,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.container, new CalendarFragment())
                 .commit();
 
-        // 탭 클릭 이벤트 처리
+        // 기본 탭 선택 UI도 캘린더로 강조
+        bottomNavigationView.setSelectedItemId(R.id.nav_calendar);
+
         bottomNavigationView.setOnItemSelectedListener(item -> {
             Fragment fragment;
             int id = item.getItemId();

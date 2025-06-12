@@ -62,6 +62,38 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             AlertDialog dialog = builder.create();
             dialog.show();
 
+            TextView btnSaveMemo = dialogView.findViewById(R.id.btn_save_memo);
+
+            btnSaveMemo.setOnClickListener(v2 -> {
+                View memoView = LayoutInflater.from(context).inflate(R.layout.dialog_add_memo, null);
+                AlertDialog memoDialog = new AlertDialog.Builder(context).setView(memoView).create();
+
+                TextView editMemo = memoView.findViewById(R.id.edit_memo);
+                TextView btnSave = memoView.findViewById(R.id.btn_save);
+
+                btnSave.setOnClickListener(v3 -> {
+                    String memoText = editMemo.getText().toString().trim();
+                    if (!memoText.isEmpty()) {
+                        new Thread(() -> {
+                            com.example.project.model.Review review = new com.example.project.model.Review();
+                            review.contentId = content.id;
+                            review.memo = memoText;
+                            review.createdDate = new java.text.SimpleDateFormat("yyyy.MM.dd", java.util.Locale.getDefault()).format(new java.util.Date());
+                            review.rating = 0f;
+
+                            MainActivity.db.appDao().insertReview(review);
+
+                            ((MainActivity) context).runOnUiThread(() -> {
+                                memoDialog.dismiss();
+                                dialog.dismiss();
+                            });
+                        }).start();
+                    }
+                });
+
+                memoDialog.show();
+            });
+
             ImageView imageView = dialogView.findViewById(R.id.dialog_image);
             TextView titleView = dialogView.findViewById(R.id.dialog_title);
             TextView descView = dialogView.findViewById(R.id.dialog_desc1);
@@ -73,8 +105,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
             Glide.with(context).load(content.imageUrl).into(imageView);
             titleView.setText(content.title);
             descView.setText(content.place);
-            startDateView.setText("시작일: " + content.startDate);
-            endDateView.setText("종료일: " + content.endDate);
+            startDateView.setText("시작일: " + (content.startDate != null ? content.startDate : "-"));
+            endDateView.setText("종료일: " + (content.endDate != null ? content.endDate : "-"));
 
             if (content.endDate != null && !content.endDate.isEmpty()) {
                 ratingBar.setVisibility(View.VISIBLE);
